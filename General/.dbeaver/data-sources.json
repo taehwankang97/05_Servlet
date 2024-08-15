@@ -25,7 +25,7 @@
 		"oracle_thin-1914e876b1a-10ff1b9d19124d13": {
 			"provider": "oracle",
 			"driver": "oracle_thin",
-			"name": "kh_KTH(KH1234)",
+			"name": "KH_KTH(KH1234)",
 			"save-password": true,
 			"configuration": {
 				"host": "localhost",
