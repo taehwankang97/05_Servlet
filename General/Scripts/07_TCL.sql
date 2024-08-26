@@ -6,7 +6,7 @@
  
  - 데이터 변경 사항(DML)을 묶어 하나의 트랜잭션에 담아 처리함.
 
- - 트랜잭션의 대상이 되는 데이터 변경 사항 : INSERT, UPDATE, DELETE (DML)
+ - 트랜잭션의 대상이 되는 데이터 변경 사항 : INSERT, UPDATE, DELETE <- (DML)
  
  EX) INSERT 수행 --------------------------------> DB 반영(X)
    
