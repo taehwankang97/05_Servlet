@@ -192,6 +192,7 @@ VALUES('D0', 'L3');
  * 						== 마지막으로 호출한 NEXTVAL 값을 반환
  * */
 
+DROP SEQUENCE SEQ_TEST_NO;
 
 /* 시퀀스 생성하기 */
 CREATE SEQUENCE SEQ_TEST_NO
@@ -227,13 +228,49 @@ SELECT SEQ_TEST_NO.NEXTVAL FROM DUAL;
 SELECT SEQ_TEST_NO.CURRVAL FROM DUAL; -- 100
 
 
+-- NEXTVAL를 호출할 때 마다
+-- INCREMENT BY에 작성된 수 만큼 증가
+SELECT SEQ_TEST_NO.NEXTVAL FROM DUAL; 
+-- 처음 : 100
+-- 1회 : 105
+-- 2회 : 110
+-- 3회 : 115
+-- 4회 : 120
 
 
+ -- TB_TEST 테이블에 PK 값을 SEQ_TEST_NO 시퀀스로 생성하기
+INSERT INTO TB_TEST
+VALUES(SEQ_TEST_NO.NEXTVAL, '짱구');
 
+INSERT INTO TB_TEST
+VALUES(SEQ_TEST_NO.NEXTVAL, '철수');
+
+INSERT INTO TB_TEST
+VALUES(SEQ_TEST_NO.NEXTVAL, '유리');
+
+SELECT * FROM TB_TEST;
+
+------------------------------------------
+/*UPDATE에서 시퀀스 사용하기*/
+
+--'짱구'의 PK컬럼 값을 
+-- SEQ_TEST_NO 시퀀스의 다음 생성 값으로 변경하기 
+UPDATE TB_TEST
+SET 
+	TEST_NO = SEQ_TEST_NO.NEXTVAL
+WHERE TEST_NAME  ='짱구';
+
+-->SQL Error [8004] [72000]: ORA-08004: 시퀀스 
+--SEQ_TEST_NO.NEXTVAL exceeds
+-- MAXVALUE은 사례로 될 수 없습니다
+--MAXVAULE 보다 증가 할 수 없다.
+
+SELECT * FROM TB_TEST;
 
 --------------------------------
 
 -- SEQUENCE 변경(ALTER)
+--> START WITH 빼고 모두 변경 가능
 
 /*
  [작성법]
@@ -245,7 +282,14 @@ SELECT SEQ_TEST_NO.CURRVAL FROM DUAL; -- 100
   [CACHE 바이트크기 | NOCACHE] -- 캐쉬메모리 기본값은 20바이트, 최소값은 2바이트
 */	
 
+-- SEQ_TEST_NO의 MAXVALUE 값을 200으로 수정
+ALTER SEQUENCE SEQ_TEST_NO
+MAXVALUE 200;
 
+--200 까지 증가 시켜서 변경 확인
+
+SELECT SEQ_TEST_NO.NEXTVAL
+FROM DUAL;
 
 
 
@@ -254,9 +298,15 @@ SELECT SEQ_TEST_NO.CURRVAL FROM DUAL; -- 100
 -- VIEW, SEQUENCE 삭제
 
 
+-- V_DCOPY2 VIEW 삭제
+DROP VIEW V_DCOPY2;
 
+
+--SEQ_TEST_NO SEQUENCE 삭제
+DROP SEQUENCE SEQ_TEST_NO;
 
 ------------------------------------------------------------------------
+
 
 /* INDEX(색인)
  * - SQL 구문 중 SELECT 처리 속도를 향상 시키기 위해 
@@ -295,3 +345,45 @@ SELECT SEQ_TEST_NO.CURRVAL FROM DUAL; -- 100
  *    UNIQUE INDEX가 자동 생성된다. 
  * */
 
+/*인덱스 성능 확인용 테이블 생성*/
+CREATE TABLE TB_IDX_TEST(
+	TEST_NO NUMBER PRIMARY KEY, -- 자동으로 UNIQUE INDEX 생성됨
+	TEST_ID VARCHAR2(20) NOT NULL
+);
+
+
+/*관리자 계정 접속*/
+ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
+
+-- 할당된 저장 공간 용량 변경
+ALTER USER KH_KTH
+DEFAULT TABLESPACE USERS
+QUOTA 200M ON USERS;
+
+-- TB_IDX_TEST 테이블에
+-- 샘플 100만개 삽입 (PL/SQL 사용)
+BEGIN
+	FOR I IN 1..1000000
+	LOOP 
+		INSERT INTO TB_IDX_TEST
+		VALUES( I , 'TEST' || I);
+	END LOOP;
+	
+	COMMIT;
+END;
+
+SELECT COUNT(*) FROM TB_IDX_TEST;
+
+/*인덱스를 사용해서 검색하는 방법
+* -> WHERE절에 INDEX가 지정된 컬럼을 언급하기
+**/
+
+--TEST_ID가 'TEST500000' 인 인 행 조회하기 
+SELECT * FROM TB_IDX_TEST
+WHERE TEST_ID = 'TEST500000';
+
+/*인덱스 O*/
+-- TEST_NO 가 500000 인 행 조회
+SELECT * FROM TB_IDX_TEST
+WHERE TEST_NO = 500000; -- 0.001
+-- 보통 10~30배차이 

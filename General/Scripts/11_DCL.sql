@@ -155,6 +155,24 @@ REVOKE SELECT ON EMPLOYEE FROM TEST_USER;
 /*TEST_USER 접속해서 SELECT 확인*/
 SELECT * FROM KH_KTH.DEPARTMENT;
 
+--------------------------------------------
+
+/*관리자 계정 접속*/
+
+ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
+
+--TEST_USER 계정 삭제 (DROP USER 계정명)
+DROP USER TEST_USER;
+--  ORA-01940: 현재 접속되어 있는 사용자는 삭제할 수 없습니다
+ --> Database Navigator 에서
+  --  TEST_USER 계정에 접속 중이라서 삭제 불가 
+  	--> 연결 종료
+
+
+
+
+
+
 
 
 

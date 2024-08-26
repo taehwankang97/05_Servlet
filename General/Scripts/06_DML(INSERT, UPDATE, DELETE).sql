@@ -76,7 +76,7 @@ CREATE TABLE EMP_01(
 -- 서브 쿼리를 이용해서 여러행 INSERT 하기 
 -- > 서브쿼리 결과 (RESULT SET)를 통째로 삽입하기 
 
-SELECT * FROM EMP_01
+INSERT INTO EMP_01
 (SELECT 
 	EMP_ID,
 	EMP_NAME,
